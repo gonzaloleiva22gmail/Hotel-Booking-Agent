@@ -1,0 +1,49 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+.vercel/
+.agent/
+.git/
+
+# Secrets
+.env*
+*.local
+credentials.json
+service_account.json
+
+# Temporary data and logs
+*.log
+*.json
+*.csv
+*.txt
+*.xml
+*.pdf
+tmp/
+*.json.gz
+
+# Keep essential project files
+!package.json
+!package-lock.json
+!tsconfig.json
+!next.config.js
+!tailwind.config.js
+!postcss.config.js
+!vercel.json
+!.gitignore
+!README.md
+
+# Keep source code
+!pages/**/*.ts
+!pages/**/*.tsx
+!components/**/*.tsx
+!services/**/*.ts
+!types/**/*.ts
+!styles/**/*.css
+!public/**/*
+
+# Specific automation scripts we want to keep
+!rebuild_and_activate.js
+!fix_and_activate.js
+!extract_reservations.py
