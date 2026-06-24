@@ -9,9 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+  const AIRTABLE_API_KEY =
+    process.env.AIRTABLE_API_KEY || process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN;
   if (!AIRTABLE_API_KEY) {
-    return res.status(500).json({ error: 'AIRTABLE_API_KEY environment variable is not set' });
+    return res.status(500).json({
+      error: 'Set AIRTABLE_API_KEY or AIRTABLE_PERSONAL_ACCESS_TOKEN in the environment',
+    });
   }
 
   try {

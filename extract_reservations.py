@@ -4,12 +4,13 @@ import pandas as pd
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import re
+from datetime import datetime, timedelta
 
 # Constants
-SPREADSHEET_ID = '1jsarmmM7gbYe3ZJ__RuooWBd1zhegdcKG2F2P5CrPEc'
+SPREADSHEET_ID = '1w82pSYqs9heYbjhcSTAfM3bY8WXABmrjU2LpApW5Ivw'
 RANGE_NAME = 'RESERVA 2026'
-CREDENTIALS_FILE = 'groovy-datum-284702-25d0f11508f8.json'
-OUTPUT_FILE = 'airtable_ready_export.csv'
+CREDENTIALS_FILE = 'google_sheets_credentials.json' # User should ensure this file exists
+OUTPUT_FILE = os.path.join('doc', 'airtable export.csv')
 
 # Spanish month mapping
 MONTH_MAP = {
@@ -31,6 +32,12 @@ def parse_spanish_date(date_str):
     except Exception:
         pass
     return None
+
+def next_date_iso(date_str):
+    try:
+        return (datetime.strptime(date_str, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')
+    except Exception:
+        return date_str
 
 def main():
     # Authentication
@@ -105,13 +112,11 @@ def main():
             if col_idx >= len(cells):
                 # End current stay if table ends abruptly
                 if current_stay:
-                    # Check-Out is the day after the last day of stay
-                    next_day = pd.to_datetime(current_stay['last_date']) + pd.Timedelta(days=1)
                     results.append({
                         'Room Number': current_stay['Room Number'],
                         'Room Type': current_stay['Room Type'],
                         'Check_In': current_stay['Check_In'],
-                        'Check_Out': next_day.strftime('%Y-%m-%d'),
+                        'Check_Out': next_date_iso(current_stay['last_date']),
                         'Guest Name': current_stay['Guest Name'],
                         'Cell Notes': current_stay['Cell Notes']
                     })
@@ -129,12 +134,11 @@ def main():
                 else:
                     # Close previous stay if exists
                     if current_stay:
-                        next_day = pd.to_datetime(current_stay['last_date']) + pd.Timedelta(days=1)
                         results.append({
                             'Room Number': current_stay['Room Number'],
                             'Room Type': current_stay['Room Type'],
                             'Check_In': current_stay['Check_In'],
-                            'Check_Out': next_day.strftime('%Y-%m-%d'),
+                            'Check_Out': next_date_iso(current_stay['last_date']),
                             'Guest Name': current_stay['Guest Name'],
                             'Cell Notes': current_stay['Cell Notes']
                         })
@@ -151,12 +155,11 @@ def main():
             else:
                 # Empty cell, close current stay if any
                 if current_stay:
-                    next_day = pd.to_datetime(current_stay['last_date']) + pd.Timedelta(days=1)
                     results.append({
                         'Room Number': current_stay['Room Number'],
                         'Room Type': current_stay['Room Type'],
                         'Check_In': current_stay['Check_In'],
-                        'Check_Out': next_day.strftime('%Y-%m-%d'),
+                        'Check_Out': next_date_iso(current_stay['last_date']),
                         'Guest Name': current_stay['Guest Name'],
                         'Cell Notes': current_stay['Cell Notes']
                     })
@@ -164,12 +167,11 @@ def main():
         
         # End of row: Close any remaining stay
         if current_stay:
-            next_day = pd.to_datetime(current_stay['last_date']) + pd.Timedelta(days=1)
             results.append({
                 'Room Number': current_stay['Room Number'],
                 'Room Type': current_stay['Room Type'],
                 'Check_In': current_stay['Check_In'],
-                'Check_Out': next_day.strftime('%Y-%m-%d'),
+                'Check_Out': next_date_iso(current_stay['last_date']),
                 'Guest Name': current_stay['Guest Name'],
                 'Cell Notes': current_stay['Cell Notes']
             })
@@ -190,7 +192,33 @@ def main():
     # Filter only valid rooms
     df = df[df['Room Number'].isin(valid_rooms)]
 
+    # Format and Map to target CSV structure
+    # Target: Guest_Name,Check_In,Check_Out,Room_Type,Phone_Number,Room_Number,Notes,Created_At
+    
+    # Extract Phone Number if possible from notes (simple regex for digits)
+    def extract_phone(note):
+        match = re.search(r'(\+?\d{7,15})', note)
+        return match.group(1) if match else ''
+
+    df['Phone_Number'] = df['Cell Notes'].apply(extract_phone)
+    # Use timezone-aware local time if possible, otherwise plain now
+    df['Created_At'] = pd.Timestamp.now().strftime('%m/%d/%Y %I:%M%p').lower()
+    
+    # Rename and reorder columns
+    df = df.rename(columns={
+        'Guest Name': 'Guest_Name',
+        'Room Type': 'Room_Type',
+        'Room Number': 'Room_Number',
+        'Cell Notes': 'Notes'
+    })
+    
+    # Ensure all target columns exist
+    target_columns = ['Guest_Name', 'Check_In', 'Check_Out', 'Room_Type', 'Phone_Number', 'Room_Number', 'Notes', 'Created_At']
+    df = df[target_columns]
+
     # Export to CSV
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
     df.to_csv(OUTPUT_FILE, index=False)
     print(f"Successfully exported {len(df)} records to {OUTPUT_FILE}")
 

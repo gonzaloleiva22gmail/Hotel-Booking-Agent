@@ -22,6 +22,7 @@ service_account.json
 *.pdf
 tmp/
 *.json.gz
+.playwright-mcp/
 
 # Keep essential project files
 !package.json

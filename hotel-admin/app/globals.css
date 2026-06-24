@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6f3ff;
+  --foreground: #0a0a2e;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-strong: #ffffff;
+  --surface-muted: #f4f2ff;
+  --border: rgba(139, 130, 254, 0.18);
+  --border-strong: rgba(139, 130, 254, 0.3);
+  --brand: #8b82fe;
+  --brand-strong: #9013fe;
+  --brand-soft: #ebe8ff;
+  --accent: #4a90e2;
+  --accent-soft: #edf5ff;
+  --muted: #5d5b7d;
+  --shadow-lg: 0 24px 80px rgba(74, 49, 133, 0.16);
+  --shadow-md: 0 16px 40px rgba(74, 49, 133, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), sans-serif;
+  background-image:
+    radial-gradient(circle at top left, rgba(139, 130, 254, 0.24), transparent 24rem),
+    radial-gradient(circle at top right, rgba(74, 144, 226, 0.18), transparent 22rem),
+    radial-gradient(circle at bottom right, rgba(144, 19, 254, 0.12), transparent 20rem),
+    linear-gradient(180deg, #faf7ff 0%, #f6f3ff 48%, #f2efff 100%);
+  min-height: 100vh;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+::selection {
+  background: rgba(36, 87, 255, 0.18);
+}
+
+@layer components {
+  .surface-card {
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+
+  .glass-panel {
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(24px);
+  }
+
+  .page-shell {
+    @apply mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-8;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em];
+    background: rgba(139, 130, 254, 0.12);
+    color: var(--muted);
+  }
+
+  .button-primary {
+    @apply inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold text-white;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--brand-strong) 100%);
+    box-shadow: 0 14px 30px rgba(139, 130, 254, 0.3);
+  }
+
+  .button-primary:hover {
+    transform: translateY(-1px);
+  }
+
+  .button-secondary {
+    @apply inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  .button-ghost {
+    @apply inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-medium;
+    color: var(--muted);
+  }
+
+  .button-ghost:hover {
+    background: rgba(139, 130, 254, 0.08);
+    color: var(--foreground);
+  }
+
+  .app-input,
+  .app-select,
+  .app-textarea {
+    @apply w-full rounded-2xl px-4 py-3 text-sm;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  .app-input::placeholder,
+  .app-textarea::placeholder {
+    color: #8d98af;
+  }
+
+  .app-input:focus,
+  .app-select:focus,
+  .app-textarea:focus {
+    outline: none;
+    border-color: rgba(139, 130, 254, 0.54);
+    box-shadow:
+      0 0 0 4px rgba(139, 130, 254, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  .app-select {
+    @apply bg-white;
+  }
+
+  .stat-card {
+    @apply rounded-[28px] p-5;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(139, 130, 254, 0.14);
+    box-shadow: 0 18px 50px rgba(74, 49, 133, 0.1);
+    backdrop-filter: blur(14px);
+  }
+
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table thead tr {
+    background: var(--surface-muted);
+  }
+
+  .data-table th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.18em];
+    color: var(--muted);
+  }
+
+  .data-table td {
+    @apply px-4 py-4 align-top;
+    border-top: 1px solid rgba(139, 130, 254, 0.1);
+  }
+
+  .empty-state {
+    @apply rounded-[28px] px-6 py-12 text-center text-sm;
+    background: rgba(255, 255, 255, 0.66);
+    border: 1px dashed rgba(139, 130, 254, 0.24);
+    color: var(--muted);
+  }
+
+  .status-pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+}
